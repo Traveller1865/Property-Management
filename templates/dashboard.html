@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Welcome, {{ current_user.username }}!</h2>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Properties</h5>
+                <p class="card-text">Manage your properties here.</p>
+                <a href="#" class="btn btn-primary">View Properties</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Payments</h5>
+                <p class="card-text">View and manage payments.</p>
+                <a href="#" class="btn btn-primary">Payment Center</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Messages</h5>
+                <p class="card-text">Communication center.</p>
+                <a href="#" class="btn btn-primary">View Messages</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

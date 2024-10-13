@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Property Management</h1>
+    <p class="lead">Manage your properties efficiently with our easy-to-use platform.</p>
+    <hr class="my-4">
+    <p>Whether you're a landlord or a tenant, we've got you covered.</p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">Get Started</a>
+</div>
+{% endblock %}
