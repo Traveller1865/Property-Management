@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -119,6 +119,7 @@ def add_tenant(property_id):
             property_id=property.id
         )
         db.session.add(new_tenant)
+        db.session.commit()  # Commit to get the new tenant ID
         
         new_lease = LeaseAgreement(
             start_date=form.lease_start.data,
@@ -135,14 +136,20 @@ def add_tenant(property_id):
             new_tenant.background_check = filename
 
         db.session.commit()
-        flash('Tenant added successfully!', 'success')
+        
+        if request.is_xhr:
+            return jsonify({'success': True, 'message': 'Tenant added successfully!'})
+        else:
+            flash('Tenant added successfully!', 'success')
+            return redirect(url_for('property_detail', property_id=property.id))
+    
+    if request.is_xhr:
+        return jsonify({'success': False, 'errors': form.errors}), 400
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{getattr(form, field).label.text}: {error}', 'danger')
         return redirect(url_for('property_detail', property_id=property.id))
-    
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(f'{getattr(form, field).label.text}: {error}', 'danger')
-    
-    return redirect(url_for('property_detail', property_id=property.id))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
