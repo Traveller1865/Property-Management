@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <h2>Add New Property</h2>
-    <form method="POST" action="{{ url_for('add_property') }}">
+    <form method="POST" action="{{ url_for('add_property') }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="mb-3">
             {{ form.name.label(class="form-label") }}
@@ -40,6 +40,10 @@
         <div class="mb-3">
             {{ form.vacancy_status.label(class="form-label") }}
             {{ form.vacancy_status(class="form-select") }}
+        </div>
+        <div class="mb-3">
+            {{ form.thumbnail.label(class="form-label") }}
+            {{ form.thumbnail(class="form-control") }}
         </div>
         <div class="mb-3">
             {{ form.submit(class="btn btn-primary") }}

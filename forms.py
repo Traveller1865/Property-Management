@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatField, IntegerField, DateField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
+from flask_wtf.file import FileAllowed
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -40,6 +41,9 @@ class PropertyForm(FlaskForm):
         ('vacant', 'Vacant'),
         ('occupied', 'Occupied')
     ], validators=[DataRequired()])
+    thumbnail = FileField('Property Thumbnail', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
+    ])
     submit = SubmitField('Add Property')
 
 class TenantForm(FlaskForm):

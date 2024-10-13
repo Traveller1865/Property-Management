@@ -33,6 +33,7 @@ class Property(db.Model):
     payments = db.relationship('Payment', backref='property', lazy=True)
     tenants = db.relationship('Tenant', backref='property', lazy=True)
     leases = db.relationship('LeaseAgreement', backref='property', lazy=True)
+    thumbnail_url = db.Column(db.String(200), nullable=True) 
 
 class Tenant(db.Model):
     id = db.Column(db.Integer, primary_key=True)

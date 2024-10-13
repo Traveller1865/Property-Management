@@ -1,63 +1,72 @@
+{% extends "base.html" %}
+
 {% block content %}
-<h2>Welcome, {{ current_user.username }}!</h2>
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Properties</h5>
-                <p class="card-text">Manage your properties here.</p>
-                <a href="{{ url_for('add_property') }}" class="btn btn-primary">Add New Property</a>
-            </div> <!-- Closing div for card-body -->
-        </div> <!-- Closing div for card -->
-    </div> <!-- Closing div for col-md-4 -->
+<div class="container">
+    <h2>Welcome, {{ current_user.username }}!</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Properties</h5>
+                    <p class="card-text">Manage your properties here.</p>
+                    <a href="{{ url_for('add_property') }}" class="btn btn-primary">Add New Property</a>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-12">
-        <h3>Your Properties</h3>
-        {% if properties %}
-            <div class="row">
-                {% for property in properties %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ property.name }}</h5>
-                                <p class="card-text">
-                                    <strong>Address:</strong> {{ property.address }}<br>
-                                    <strong>Rent:</strong> ${{ property.rent_amount }}<br>
-                                    <strong>Type:</strong> {{ property.dwelling_type }}<br>
-                                    <strong>Status:</strong> {{ property.vacancy_status }}
-                                </p>
-                                <a href="{{ url_for('property_detail', property_id=property.id) }}" class="btn btn-primary">View Details</a>
-                            </div> <!-- Closing div for card-body -->
-                        </div> <!-- Closing div for card -->
-                    </div> <!-- Closing div for col-md-4 -->
-                {% endfor %}
-            </div> <!-- Closing div for row -->
-        {% else %}
-            <p>You don't have any properties yet. Add your first property now!</p>
-        {% endif %}
-        <a href="{{ url_for('add_property') }}" class="btn btn-success mt-3">Add New Property</a>
-    </div> <!-- Closing div for col-md-12 -->
-</div> <!-- Closing div for row -->
+        <div class="col-md-12 mt-4">
+            <h3>Your Properties</h3>
+            {% if properties %}
+                <div class="row">
+                    {% for property in properties %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                {% if property.thumbnail_url %}
+                                    <img src="{{ property.thumbnail_url }}" class="card-img-top" alt="{{ property.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/default_property.jpg') }}" class="card-img-top" alt="Default Property Image">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ property.name }}</h5>
+                                    <p class="card-text">
+                                        <strong>Address:</strong> {{ property.address }}<br>
+                                        <strong>Rent:</strong> ${{ property.rent_amount }}<br>
+                                        <strong>Type:</strong> {{ property.dwelling_type }}<br>
+                                        <strong>Status:</strong> {{ property.vacancy_status }}
+                                    </p>
+                                    <a href="{{ url_for('property_detail', property_id=property.id) }}" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>You don't have any properties yet. Add your first property now!</p>
+            {% endif %}
+            <a href="{{ url_for('add_property') }}" class="btn btn-success mt-3">Add New Property</a>
+        </div>
+    </div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Payments</h5>
-                <p class="card-text">View and manage payments.</p>
-                <a href="#" class="btn btn-primary">Payment Center</a>
-            </div> <!-- Closing div for card-body -->
-        </div> <!-- Closing div for card -->
-    </div> <!-- Closing div for col-md-4 -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Payments</h5>
+                    <p class="card-text">View and manage payments.</p>
+                    <a href="#" class="btn btn-primary">Payment Center</a>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Messages</h5>
-                <p class="card-text">Communication center.</p>
-                <a href="#" class="btn btn-primary">View Messages</a>
-            </div> <!-- Closing div for card-body -->
-        </div> <!-- Closing div for card -->
-    </div> <!-- Closing div for col-md-4 -->
-</div> <!-- Closing div for row -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Messages</h5>
+                    <p class="card-text">Communication center.</p>
+                    <a href="#" class="btn btn-primary">View Messages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm
 from models import db, User, Property, Tenant, LeaseAgreement
 
@@ -83,6 +84,13 @@ def add_property():
             vacancy_status=form.vacancy_status.data,
             owner_id=current_user.id
         )
+        
+        if form.thumbnail.data:
+            filename = secure_filename(form.thumbnail.data.filename)
+            thumbnail_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            form.thumbnail.data.save(thumbnail_path)
+            new_property.thumbnail_url = url_for('static', filename=f'uploads/{filename}')
+        
         db.session.add(new_property)
         db.session.commit()
         flash('Property added successfully!', 'success')
@@ -122,7 +130,6 @@ def add_tenant(property_id):
         db.session.add(new_lease)
         
         if form.background_check.data:
-            # Handle file upload (you may want to save it to a specific location)
             filename = secure_filename(form.background_check.data.filename)
             form.background_check.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             new_tenant.background_check = filename
