@@ -1,10 +1,10 @@
 import os
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegistrationForm, PropertyForm
-from models import db, User, Property
+from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm
+from models import db, User, Property, Tenant, LeaseAgreement
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -92,7 +92,49 @@ def add_property():
 @login_required
 def property_detail(property_id):
     property = Property.query.get_or_404(property_id)
-    return render_template('property_detail.html', property=property)
+    tenant_form = TenantForm()
+    return render_template('property_detail.html', property=property, form=tenant_form)
+
+@app.route('/property/<int:property_id>/add_tenant', methods=['POST'])
+@login_required
+def add_tenant(property_id):
+    property = Property.query.get_or_404(property_id)
+    form = TenantForm()
+    if form.validate_on_submit():
+        new_tenant = Tenant(
+            name=form.name.data,
+            contact_email=form.contact_email.data,
+            phone_number=form.phone_number.data,
+            emergency_contact=form.emergency_contact.data,
+            application_status=form.application_status.data,
+            property_id=property.id
+        )
+        db.session.add(new_tenant)
+        
+        new_lease = LeaseAgreement(
+            start_date=form.lease_start.data,
+            end_date=form.lease_end.data,
+            rent_amount=form.rent_amount.data,
+            tenant_id=new_tenant.id,
+            property_id=property.id
+        )
+        db.session.add(new_lease)
+        
+        if form.background_check.data:
+            # Handle file upload (you may want to save it to a specific location)
+            filename = secure_filename(form.background_check.data.filename)
+            form.background_check.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            new_tenant.background_check = filename
+
+        db.session.commit()
+        flash('Tenant added successfully!', 'success')
+        return redirect(url_for('property_detail', property_id=property.id))
+    
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(f'{getattr(form, field).label.text}: {error}', 'danger')
+    
+    return redirect(url_for('property_detail', property_id=property.id))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

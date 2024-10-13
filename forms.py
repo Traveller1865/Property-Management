@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatField, IntegerField, DateField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
 
 class LoginForm(FlaskForm):
@@ -41,3 +41,19 @@ class PropertyForm(FlaskForm):
         ('occupied', 'Occupied')
     ], validators=[DataRequired()])
     submit = SubmitField('Add Property')
+
+class TenantForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(max=100)])
+    contact_email = StringField('Email', validators=[DataRequired(), Email()])
+    phone_number = StringField('Phone Number', validators=[DataRequired(), Length(max=15)])
+    emergency_contact = StringField('Emergency Contact', validators=[DataRequired(), Length(max=100)])
+    application_status = SelectField('Application Status', choices=[
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], validators=[DataRequired()])
+    background_check = FileField('Background Check')
+    lease_start = DateField('Lease Start Date', validators=[DataRequired()])
+    lease_end = DateField('Lease End Date', validators=[DataRequired()])
+    rent_amount = FloatField('Rent Amount', validators=[DataRequired(), NumberRange(min=0)])
+    submit = SubmitField('Add Tenant')

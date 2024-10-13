@@ -40,7 +40,7 @@ class Tenant(db.Model):
     contact_email = db.Column(db.String(100), nullable=False)
     phone_number = db.Column(db.String(15), nullable=False)
     emergency_contact = db.Column(db.String(100), nullable=True)
-    application_status = db.Column(db.String(50), nullable=True)
+    application_status = db.Column(db.String(50), nullable=False)
     background_check = db.Column(db.String(100), nullable=True)  # URL or path to background check document
     property_id = db.Column(db.Integer, db.ForeignKey('property.id'), nullable=False)
     lease = db.relationship('LeaseAgreement', backref='tenant', uselist=False)
