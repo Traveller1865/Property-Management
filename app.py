@@ -56,7 +56,8 @@ def register():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    properties = Property.query.filter_by(owner_id=current_user.id).all()
+    return render_template('dashboard.html', properties=properties)
 
 @app.route('/logout')
 @login_required
