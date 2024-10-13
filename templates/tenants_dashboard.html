@@ -45,7 +45,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addTenantForm" method="POST" action="{{ url_for('add_tenant') }}" enctype="multipart/form-data">
+                        <form id="addTenantForm" method="POST" action="{{ url_for('tenants_dashboard') }}" enctype="multipart/form-data">
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         {{ form.name.label(class="form-label") }}
@@ -66,6 +66,15 @@
                     <div class="mb-3">
                         {{ form.application_status.label(class="form-label") }}
                         {{ form.application_status(class="form-select") }}
+                    </div>
+                    <!-- Property Dropdown for selecting the property -->
+                    <div class="mb-3">
+                        <label for="property_id" class="form-label">Select Property</label>
+                        <select id="property_id" name="property_id" class="form-select">
+                            {% for property in properties %}
+                            <option value="{{ property.id }}">{{ property.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="mb-3">
                         {{ form.background_check.label(class="form-label") }}

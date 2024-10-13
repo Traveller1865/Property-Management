@@ -5,7 +5,8 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm
-from models import db, User, Property, Tenant, LeaseAgreement
+from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -60,12 +61,6 @@ def dashboard():
     properties = Property.query.filter_by(owner_id=current_user.id).all()
     return render_template('dashboard.html', properties=properties)
 
-@app.route('/dashboard/tenants')
-@login_required
-def tenants_dashboard():
-    tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
-    return render_template('tenants_dashboard.html', tenants=tenants)
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -88,15 +83,18 @@ def add_property():
             dwelling_type=form.dwelling_type.data,
             lease_term=form.lease_term.data,
             vacancy_status=form.vacancy_status.data,
-            owner_id=current_user.id
+            owner_id=current_user.id,
+            deposit=form.deposit.data,
+            maintenance_schedule=form.maintenance_schedule.data,
+            maintenance_timestamp=datetime.utcnow()  # Optional field
         )
-        
+
         if form.thumbnail.data:
             filename = secure_filename(form.thumbnail.data.filename)
             thumbnail_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             form.thumbnail.data.save(thumbnail_path)
             new_property.thumbnail_url = url_for('static', filename=f'uploads/{filename}')
-        
+
         db.session.add(new_property)
         db.session.commit()
         flash('Property added successfully!', 'success')
@@ -110,10 +108,12 @@ def property_detail(property_id):
     tenant_form = TenantForm()
     return render_template('property_detail.html', property=property, form=tenant_form)
 
-@app.route('/add_tenant', methods=['POST'])
+@app.route('/property/<int:property_id>/add_tenant', methods=['POST'])
 @login_required
-def add_tenant():
+def add_tenant(property_id):
+    property = Property.query.get_or_404(property_id)
     form = TenantForm()
+
     if form.validate_on_submit():
         new_tenant = Tenant(
             name=form.name.data,
@@ -121,40 +121,77 @@ def add_tenant():
             phone_number=form.phone_number.data,
             emergency_contact=form.emergency_contact.data,
             application_status=form.application_status.data,
-            property_id=form.property_id.data
+            property_id=property.id
         )
         db.session.add(new_tenant)
-        db.session.commit()  # Commit to get the new tenant ID
-        
+        db.session.commit()
+
+        # Create the lease agreement
         new_lease = LeaseAgreement(
             start_date=form.lease_start.data,
             end_date=form.lease_end.data,
             rent_amount=form.rent_amount.data,
             tenant_id=new_tenant.id,
-            property_id=form.property_id.data
+            property_id=property.id
         )
         db.session.add(new_lease)
-        
+
+        # Create an entry for the lease history
+        new_lease_history = LeaseHistory(
+            lease_id=new_lease.id,
+            modified_date=datetime.utcnow(),
+            change_details="Initial lease agreement created"
+        )
+        db.session.add(new_lease_history)
+
         if form.background_check.data:
             filename = secure_filename(form.background_check.data.filename)
             form.background_check.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             new_tenant.background_check = filename
 
+        # Log the creation of the new tenant
+        new_tenant_log = TenantLog(
+            tenant_id=new_tenant.id,
+            log_content="New tenant created",
+            timestamp=datetime.utcnow()
+        )
+        db.session.add(new_tenant_log)
+
         db.session.commit()
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': True, 'message': 'Tenant added successfully!'})
-        else:
-            flash('Tenant added successfully!', 'success')
-            return redirect(url_for('tenants_dashboard'))
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return jsonify({'success': False, 'errors': form.errors}), 400
-    else:
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f'{getattr(form, field).label.text}: {error}', 'danger')
-        return redirect(url_for('tenants_dashboard'))
+        flash('Tenant added successfully!', 'success')
+        return redirect(url_for('property_detail', property_id=property.id))
+
+    return redirect(url_for('property_detail', property_id=property.id))
+
+@app.route('/property/<int:property_id>/add_document', methods=['POST'])
+@login_required
+def add_document(property_id):
+    property = Property.query.get_or_404(property_id)
+    file = request.files['file']
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        new_document = Document(
+            filename=filename,
+            file_url=url_for('static', filename=f'uploads/{filename}'),
+            uploaded_at=datetime.utcnow(),
+            property_id=property.id
+        )
+        db.session.add(new_document)
+        db.session.commit()
+        flash('Document uploaded successfully!', 'success')
+    return redirect(url_for('property_detail', property_id=property_id))
+
+@app.route('/dashboard/tenants')
+@login_required
+def tenants_dashboard():
+    tenants = Tenant.query.all()  # Fetch all tenants
+    form = TenantForm()  # Create a form instance to pass to the template
+    properties = Property.query.filter_by(owner_id=current_user.id).all()  # Get all properties owned by the current user
+    selected_property_id = properties[0].id if properties else None  # Select the first property, or handle if no properties exist
+    return render_template('tenants_dashboard.html', tenants=tenants, form=form)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -3,10 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle the add tenant form submission
     const addTenantForm = document.querySelector('#addTenantForm');
+    const propertySelect = document.getElementById('property_id');
     if (addTenantForm) {
         addTenantForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            const selectedPropertyId = propertySelect.value;
+
+            // Dynamically update the form action to include the property_id
+            addTenantForm.action = `/property/${selectedPropertyId}/add_tenant`;
 
             fetch(this.action, {
                 method: 'POST',
