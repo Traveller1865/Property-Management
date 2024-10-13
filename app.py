@@ -1,6 +1,5 @@
 import os
 from flask import Flask, render_template, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -30,7 +29,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password_hash, form.password.data):
+        if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Logged in successfully.', 'success')
             return redirect(url_for('dashboard'))
@@ -47,7 +46,7 @@ def register():
             flash('Email already registered.', 'danger')
         else:
             hashed_password = generate_password_hash(form.password.data)
-            new_user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password, role=form.role.data)
+            new_user = User(username=form.username.data, email=form.email.data, password=hashed_password, role=form.role.data)
             db.session.add(new_user)
             db.session.commit()
             flash('Registration successful. Please log in.', 'success')
