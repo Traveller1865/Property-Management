@@ -3,8 +3,8 @@ from flask import Flask, render_template, redirect, url_for, flash
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegistrationForm
-from models import db, User
+from forms import LoginForm, RegistrationForm, PropertyForm
+from models import db, User, Property
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -64,6 +64,35 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
+
+@app.route('/add_property', methods=['GET', 'POST'])
+@login_required
+def add_property():
+    form = PropertyForm()
+    if form.validate_on_submit():
+        new_property = Property(
+            name=form.name.data,
+            address=form.address.data,
+            rent_amount=form.rent_amount.data,
+            beds=form.beds.data,
+            baths=form.baths.data,
+            sqft=form.sqft.data,
+            dwelling_type=form.dwelling_type.data,
+            lease_term=form.lease_term.data,
+            vacancy_status=form.vacancy_status.data,
+            owner_id=current_user.id
+        )
+        db.session.add(new_property)
+        db.session.commit()
+        flash('Property added successfully!', 'success')
+        return redirect(url_for('property_detail', property_id=new_property.id))
+    return render_template('add_property.html', form=form)
+
+@app.route('/property/<int:property_id>')
+@login_required
+def property_detail(property_id):
+    property = Property.query.get_or_404(property_id)
+    return render_template('property_detail.html', property=property)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
