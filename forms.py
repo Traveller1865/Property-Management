@@ -60,4 +60,5 @@ class TenantForm(FlaskForm):
     lease_start = DateField('Lease Start Date', validators=[DataRequired()])
     lease_end = DateField('Lease End Date', validators=[DataRequired()])
     rent_amount = FloatField('Rent Amount', validators=[DataRequired(), NumberRange(min=0)])
+    property_id = SelectField('Property', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Add Tenant')

@@ -60,6 +60,12 @@ def dashboard():
     properties = Property.query.filter_by(owner_id=current_user.id).all()
     return render_template('dashboard.html', properties=properties)
 
+@app.route('/dashboard/tenants')
+@login_required
+def tenants_dashboard():
+    tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
+    return render_template('tenants_dashboard.html', tenants=tenants)
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -104,10 +110,9 @@ def property_detail(property_id):
     tenant_form = TenantForm()
     return render_template('property_detail.html', property=property, form=tenant_form)
 
-@app.route('/property/<int:property_id>/add_tenant', methods=['POST'])
+@app.route('/add_tenant', methods=['POST'])
 @login_required
-def add_tenant(property_id):
-    property = Property.query.get_or_404(property_id)
+def add_tenant():
     form = TenantForm()
     if form.validate_on_submit():
         new_tenant = Tenant(
@@ -116,7 +121,7 @@ def add_tenant(property_id):
             phone_number=form.phone_number.data,
             emergency_contact=form.emergency_contact.data,
             application_status=form.application_status.data,
-            property_id=property.id
+            property_id=form.property_id.data
         )
         db.session.add(new_tenant)
         db.session.commit()  # Commit to get the new tenant ID
@@ -126,7 +131,7 @@ def add_tenant(property_id):
             end_date=form.lease_end.data,
             rent_amount=form.rent_amount.data,
             tenant_id=new_tenant.id,
-            property_id=property.id
+            property_id=form.property_id.data
         )
         db.session.add(new_lease)
         
@@ -137,19 +142,19 @@ def add_tenant(property_id):
 
         db.session.commit()
         
-        if request.is_xhr:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': True, 'message': 'Tenant added successfully!'})
         else:
             flash('Tenant added successfully!', 'success')
-            return redirect(url_for('property_detail', property_id=property.id))
+            return redirect(url_for('tenants_dashboard'))
     
-    if request.is_xhr:
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return jsonify({'success': False, 'errors': form.errors}), 400
     else:
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f'{getattr(form, field).label.text}: {error}', 'danger')
-        return redirect(url_for('property_detail', property_id=property.id))
+        return redirect(url_for('tenants_dashboard'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

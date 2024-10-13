@@ -9,11 +9,21 @@
                 <h5 class="card-title">Properties</h5>
                 <p class="card-text">Manage your properties here.</p>
                 <a href="{{ url_for('add_property') }}" class="btn btn-primary">Add New Property</a>
-            </div> <!-- Closing div for card-body -->
-        </div> <!-- Closing div for card -->
-    </div> <!-- Closing div for col-md-4 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Tenants</h5>
+                <p class="card-text">Manage your tenants here.</p>
+                <a href="{{ url_for('tenants_dashboard') }}" class="btn btn-primary">View Tenants</a>
+            </div>
+        </div>
+    </div>
 
-    <div class="col-md-12">
+    <div class="col-md-12 mt-4">
         <h3>Your Properties</h3>
         {% if properties %}
             <div class="row">
@@ -29,17 +39,17 @@
                                     <strong>Status:</strong> {{ property.vacancy_status }}
                                 </p>
                                 <a href="{{ url_for('property_detail', property_id=property.id) }}" class="btn btn-primary">View Details</a>
-                            </div> <!-- Closing div for card-body -->
-                        </div> <!-- Closing div for card -->
-                    </div> <!-- Closing div for col-md-4 -->
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
-            </div> <!-- Closing div for row -->
+            </div>
         {% else %}
             <p>You don't have any properties yet. Add your first property now!</p>
         {% endif %}
         <a href="{{ url_for('add_property') }}" class="btn btn-success mt-3">Add New Property</a>
-    </div> <!-- Closing div for col-md-12 -->
-</div> <!-- Closing div for row -->
+    </div>
+</div>
 
 <div class="row mt-4">
     <div class="col-md-4">
@@ -48,9 +58,9 @@
                 <h5 class="card-title">Payments</h5>
                 <p class="card-text">View and manage payments.</p>
                 <a href="#" class="btn btn-primary">Payment Center</a>
-            </div> <!-- Closing div for card-body -->
-        </div> <!-- Closing div for card -->
-    </div> <!-- Closing div for col-md-4 -->
+            </div>
+        </div>
+    </div>
 
     <div class="col-md-4">
         <div class="card">
@@ -58,8 +68,8 @@
                 <h5 class="card-title">Messages</h5>
                 <p class="card-text">Communication center.</p>
                 <a href="#" class="btn btn-primary">View Messages</a>
-            </div> <!-- Closing div for card-body -->
-        </div> <!-- Closing div for card -->
-    </div> <!-- Closing div for col-md-4 -->
-</div> <!-- Closing div for row -->
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

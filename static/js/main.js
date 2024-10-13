@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Property Management App initialized');
 
     // Handle the add tenant form submission
-    const addTenantForm = document.querySelector('#addTenantModal form');
+    const addTenantForm = document.querySelector('#addTenantForm');
     if (addTenantForm) {
         addTenantForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const errorElement = document.createElement('div');
                         errorElement.className = 'invalid-feedback';
                         errorElement.textContent = data.errors[field].join(', ');
-                        const inputElement = document.querySelector(`#${field}`);
+                        const inputElement = addTenantForm.querySelector(`#${field}`);
                         inputElement.classList.add('is-invalid');
                         inputElement.parentNode.appendChild(errorElement);
                     });
