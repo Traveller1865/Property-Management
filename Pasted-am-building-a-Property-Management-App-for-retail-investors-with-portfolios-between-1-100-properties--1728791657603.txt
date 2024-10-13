@@ -1,0 +1,37 @@
+am building a Property Management App for retail investors with portfolios between 1-100 properties and want to use an iterative approach to manage development because giving too many commands at once causes issues. Help me design a step-by-step iterative development process that breaks down the app into manageable phases. Each phase should focus on building one core feature at a time, ensuring the app remains functional and stable throughout development. After each phase, the AI should ask if I'm ready to move to the next phase. Begin by identifying the first major component of the app and outline how it should be developed in the first iteration. Include specific setup instructions, necessary libraries or tools, and any key functionality. Once the first iteration is complete, I will confirm to proceed with the next.
+
+**Note only focus on our first iteration for phase one written below:
+
+Phase 1: Basic Skeleton (User Authentication & Basic Pages)
+Goal: Create the core user authentication system and basic structure of the app to lay the foundation.
+Steps:
+Set up the development environment:
+
+Use Flask as the backend framework and Flask-Login or JWT for user authentication.
+SQLAlchemy for database management.
+Flask-Migrate for database migrations.
+Create Basic Pages:
+
+Landing Page: Simple static page that explains the app’s value. You can set this up with basic HTML and CSS. For now, avoid heavy design; focus on functionality (CTA buttons).
+Register/Login Pages: Include simple forms for user input.
+Use Flask WTForms or Flask Form for easy form creation.
+Implement field validation (e.g., email format, password strength).
+Set up error messages using Flask’s flash() function.
+User Authentication:
+
+Session Management: Use Flask-Login to manage user sessions or JWT if you prefer token-based authentication.
+Password Hashing: Use bcrypt to hash passwords.
+Implement role-based access control for future use (landlord, tenant).
+Home Page (Dashboard):
+
+After login, redirect users to a basic dashboard.
+For now, this can just show placeholders for sections like "Properties", "Payments", and "Messages" to outline future functionality.
+Database Setup:
+
+Create the User table with fields for username, email, hashed password, and roles (landlord/tenant).
+Use Flask-Migrate to apply the database structure.
+
+Key Functionality for Phase 1:
+Users can register, log in, and access a basic dashboard.
+Secure user sessions with proper role assignment.
+Functional, though minimal, landing, registration, and login pages.
